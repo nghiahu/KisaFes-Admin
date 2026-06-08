@@ -1,0 +1,64 @@
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Icons } from '../../shared/assets/icons';
+import { useTranslation } from 'react-i18next';
+
+interface ConfirmActionModalProps {
+  action: 'ban' | 'activate';
+  count: number;
+  isPending: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export default function ConfirmActionModal({ action, count, isPending, onConfirm, onCancel }: ConfirmActionModalProps) {
+  const { t } = useTranslation();
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80">
+      <div className="bg-panel p-6 rounded-2xl border border-border-subtle w-full max-w-md shadow-2xl flex flex-col transform transition-all">
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${action === 'ban' ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+            {action === 'ban' ? <Icons.ban size={20} /> : <Icons.checkCircle size={20} />}
+          </div>
+          <h3 className="text-xl font-bold text-text-primary">
+            {action === 'ban' ? t('users.confirmBanTitle') : t('users.confirmActivateTitle')}
+          </h3>
+        </div>
+        
+        <p className="text-text-secondary mb-6 leading-relaxed">
+          {action === 'ban' 
+            ? t('users.confirmBanDesc', { count }) 
+            : t('users.confirmActivateDesc', { count })}
+        </p>
+        
+        <div className="flex items-center justify-end gap-3 mt-auto">
+          <button 
+            onClick={onCancel}
+            className="px-5 py-2.5 rounded-xl text-sm font-bold text-text-secondary hover:text-text-primary hover:bg-panel-hover transition-colors"
+          >
+            {t('common.cancel')}
+          </button>
+          <button 
+            onClick={onConfirm}
+            disabled={isPending}
+            className={`px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-colors flex items-center gap-2 ${
+              action === 'ban' 
+                ? 'bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-500/20' 
+                : 'bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/20'
+            } disabled:opacity-50`}
+          >
+            {isPending ? t('common.processing') : (action === 'ban' ? t('users.btnBan') : t('users.btnActivate'))}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
