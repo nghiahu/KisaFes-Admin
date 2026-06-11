@@ -41,23 +41,23 @@ export interface CreateBlogDto {
 
 export const blogService = {
   getBlogs: (page: number, size: number, search: string, status?: BlogStatus | '', sortBy: string = 'createdAt', sortDir: string = 'desc') => {
-    return axiosClient.get<PageResponse<Blog>>('/api/v1/admin/blogs', {
+    return axiosClient.get<any, PageResponse<Blog>>('/api/v1/admin/blogs', {
       params: { page, size, search, ...(status ? { status } : {}), sortBy, sortDir }
     });
   },
   getBlogById: (id: string) => {
-    return axiosClient.get<Blog>(`/api/v1/admin/blogs/${id}`);
+    return axiosClient.get<any, Blog>(`/api/v1/admin/blogs/${id}`);
   },
   createBlog: (data: BlogRequest) => {
-    return axiosClient.post<Blog>('/api/v1/admin/blogs', data);
+    return axiosClient.post<any, Blog>('/api/v1/admin/blogs', data);
   },
   updateBlog: (id: string, data: BlogRequest) => {
-    return axiosClient.put<Blog>(`/api/v1/admin/blogs/${id}`, data);
+    return axiosClient.put<any, Blog>(`/api/v1/admin/blogs/${id}`, data);
   },
   changeStatus: (id: string, status: BlogStatus) => {
-    return axiosClient.patch<Blog>(`/api/v1/admin/blogs/${id}/status`, { status });
+    return axiosClient.patch<any, Blog>(`/api/v1/admin/blogs/${id}/status`, { status });
   },
   deleteBlog: (id: string) => {
-    return axiosClient.delete<void>(`/api/v1/admin/blogs/${id}`);
+    return axiosClient.delete<any, void>(`/api/v1/admin/blogs/${id}`);
   },
 };

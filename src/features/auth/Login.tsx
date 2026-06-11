@@ -1,3 +1,5 @@
+import { Label } from '@/components/ui/Label';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/Form';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -6,9 +8,12 @@ import * as z from 'zod';
 import { useAppDispatch } from '../../hooks/storeHooks';
 import { loginSuccess } from './authSlice';
 import { axiosClient } from '../../services/axiosClient';
-import { User, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { Icons } from '@/assets/icons';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n/config';
+import type { LoginResponseData } from '../../types';
 
 const loginSchema = z.object({
   username: z.string().min(1, i18n.t('auth.usernameEmpty')),
@@ -18,19 +23,6 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 // Shape of the data returned by axiosClient after ResponseWrapper unwrap
-interface LoginResponseData {
-  accessToken: string;
-  tokenType: string;
-  expiresIn: number;
-  user: {
-    id: string;
-    email: string;
-    username: string;
-    fullname: string;
-    avatarUrl?: string;
-    roles: string[];
-  };
-}
 
 export default function Login() {
   const { t } = useTranslation();
@@ -40,8 +32,12 @@ export default function Login() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
+  const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: '',
+      password: '',
+    }
   });
 
   const onSubmit = async (data: LoginFormValues) => {
@@ -78,71 +74,92 @@ export default function Login() {
     <div className="min-h-screen bg-background flex flex-col justify-between py-12 sm:px-6 lg:px-8 font-sans">
       <div className="flex-grow flex flex-col justify-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <h2 className="mt-6 text-center text-3xl font-bold text-white">
+          <h2 className="mt-6 text-center text-3xl font-bold text-foreground">
             KisaFres Admin Portal
           </h2>
-          <p className="mt-2 text-center text-sm text-slate-400 font-medium">
+          <p className="mt-2 text-center text-sm text-muted-foreground font-medium">
             {t('auth.loginDesc')}
           </p>
         </div>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-panel py-8 px-4 shadow sm:rounded-2xl sm:px-10 border border-border-subtle">
-            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-              {error && (
-                <div className="bg-red-900/50 text-red-400 border border-red-800/50 p-3 rounded-lg text-sm">
-                  {error}
-                </div>
-              )}
-              
-              <div>
-                <label className="block text-sm font-bold text-slate-300 mb-2">
-                  {t('auth.emailOrUsername')}
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-slate-400" />
+          <div className="bg-card py-8 px-4 shadow sm:rounded-2xl sm:px-10 border border-border">
+            <Form {...form}>
+              <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+                {error && (
+                  <div className="bg-destructive/10 text-destructive border border-destructive/20 p-3 rounded-lg text-sm">
+                    {error}
                   </div>
-                  <input
-                    {...register('username')}
-                    type="text"
-                    autoComplete="username"
-                    placeholder={t('auth.usernamePlaceholder')}
-                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-border-subtle rounded-lg bg-background text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
-                  />
-                </div>
-                {errors.username && <p className="mt-1 text-sm text-red-500">{errors.username.message}</p>}
-              </div>
+                )}
+                
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-bold text-foreground mb-2">
+                        {t('auth.emailOrUsername')}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Icons.user className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <Input
+                            {...field}
+                            type="text"
+                            autoComplete="username"
+                            placeholder={t('auth.usernamePlaceholder')}
+                            className="pl-10"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div>
-                <label className="block text-sm font-bold text-slate-300 mb-2">{t('auth.password')}</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-slate-400" />
-                  </div>
-                  <input
-                    {...register('password')}
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    placeholder="********"
-                    className="appearance-none block w-full pl-10 pr-10 py-3 border border-border-subtle rounded-lg bg-background text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="text-slate-400 hover:text-slate-300 focus:outline-none"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>}
-              </div>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-bold text-foreground mb-2">
+                        {t('auth.password')}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Icons.lock className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <Input
+                            {...field}
+                            type={showPassword ? 'text' : 'password'}
+                            autoComplete="current-password"
+                            placeholder="********"
+                            className="pl-10 pr-10"
+                          />
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="h-auto w-auto p-1 text-muted-foreground hover:text-foreground focus:outline-none"
+                            >
+                              {showPassword ? (
+                                <Icons.eyeOff className="h-5 w-5" />
+                              ) : (
+                                <Icons.eye className="h-5 w-5" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -150,55 +167,57 @@ export default function Login() {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-border-subtle bg-background rounded cursor-pointer"
+                    className="h-4 w-4 text-primary focus:ring-primary border-border bg-background rounded cursor-pointer"
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-slate-300 cursor-pointer">
+                  <Label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-foreground cursor-pointer">
                     {t('auth.rememberMe')}
-                  </label>
+                  </Label>
                 </div>
 
                 <div className="text-sm">
-                  <a href="#" className="font-bold text-slate-400 hover:text-slate-300 transition-colors">
+                  <a href="#" className="font-bold text-primary hover:text-primary/80 transition-colors">
                     {t('auth.forgotPassword')}
                   </a>
                 </div>
               </div>
 
               <div>
-                <button
+                <Button
                   type="submit"
                   disabled={loading}
                   id="btn-login"
-                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-bold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-panel focus:ring-blue-500 disabled:opacity-50 transition-colors"
+                  className="w-full h-12 text-base font-bold"
                 >
                   {loading ? t('common.processing') : t('auth.login')}
-                  {!loading && <LogIn className="ml-2 h-5 w-5" />}
-                </button>
+                  {!loading && <Icons.logIn className="ml-2 h-5 w-5" />}
+                </Button>
               </div>
 
               <div className="mt-6 text-center">
-                <span className="text-sm font-medium text-slate-400 mb-4 block">{t('auth.noAccount')}</span>
-                <button
+                <span className="text-sm font-medium text-muted-foreground mb-4 block">{t('auth.noAccount')}</span>
+                <Button
                   type="button"
-                  className="w-full flex justify-center py-3 px-4 border border-border-subtle rounded-lg shadow-sm text-sm font-bold text-text-secondary bg-transparent hover:bg-panel-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-panel focus:ring-slate-500 transition-colors"
+                  variant="outline"
+                  className="w-full h-12 text-sm font-bold"
                 >
                   {t('auth.contactAdmin')}
-                </button>
+                </Button>
               </div>
-            </form>
+              </form>
+            </Form>
           </div>
         </div>
       </div>
       
       <footer className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-6">
-        <div className="flex flex-col md:flex-row justify-between items-center text-sm font-bold text-slate-300">
+        <div className="flex flex-col md:flex-row justify-between items-center text-sm font-bold text-muted-foreground">
           <div className="mb-4 md:mb-0">
             © 2024 KisaFres Admin Portal. All rights reserved.
           </div>
           <div className="flex space-x-8">
-            <a href="#" className="hover:text-white transition-colors">{t('auth.privacyPolicy')}</a>
-            <a href="#" className="hover:text-white transition-colors">{t('auth.terms')}</a>
-            <a href="#" className="hover:text-white transition-colors">{t('auth.contactSupport')}</a>
+            <a href="#" className="hover:text-foreground transition-colors">{t('auth.privacyPolicy')}</a>
+            <a href="#" className="hover:text-foreground transition-colors">{t('auth.terms')}</a>
+            <a href="#" className="hover:text-foreground transition-colors">{t('auth.contactSupport')}</a>
           </div>
         </div>
       </footer>

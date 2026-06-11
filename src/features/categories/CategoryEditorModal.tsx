@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { Label } from '@/components/ui/Label';
+import { useState, useEffect } from 'react';
 import { Icons } from '../../shared/assets/icons';
-import type { CategoryTemplate } from '../../services/categoryService';
 import {
   DndContext,
   closestCenter,
@@ -15,83 +15,16 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  useSortable,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import SortableStatusItem from './components/SortableStatusItem';
 import SortableColumnItem from './components/SortableColumnItem';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { Textarea } from '../../components/ui/textarea';
+import type { CategoryEditorModalProps } from '../../types';
 
-interface CategoryEditorModalProps {
-  category: CategoryTemplate | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (data: any) => void;
-  isSaving: boolean;
-}
-
-const PERMISSION_GROUPS = [
-  {
-    name: 'Dự án',
-    permissions: [
-      { id: 'PROJECT_VIEW', label: 'Xem dự án' },
-      { id: 'PROJECT_UPDATE', label: 'Cập nhật dự án' },
-      { id: 'PROJECT_CREATE', label: 'Tạo dự án' },
-      { id: 'PROJECT_DELETE', label: 'Xóa dự án' },
-      { id: 'PROJECT_ARCHIVE', label: 'Lưu trữ dự án' },
-    ]
-  },
-  {
-    name: 'Công việc',
-    permissions: [
-      { id: 'TASK_VIEW', label: 'Xem công việc' },
-      { id: 'TASK_CREATE', label: 'Tạo công việc' },
-      { id: 'TASK_UPDATE', label: 'Sửa công việc' },
-      { id: 'TASK_DELETE', label: 'Xóa công việc' },
-      { id: 'TASK_ASSIGN', label: 'Giao việc' },
-      { id: 'TASK_CHANGE_STATUS', label: 'Đổi trạng thái' },
-    ]
-  },
-  {
-    name: 'Bảng (Board)',
-    permissions: [
-      { id: 'BOARD_VIEW', label: 'Xem bảng' },
-      { id: 'BOARD_UPDATE', label: 'Cấu hình bảng' },
-    ]
-  },
-  {
-    name: 'Thành viên',
-    permissions: [
-      { id: 'MEMBER_INVITE', label: 'Mời thành viên' },
-      { id: 'MEMBER_REMOVE', label: 'Xóa thành viên' },
-      { id: 'MEMBER_UPDATE_ROLE', label: 'Đổi quyền thành viên' },
-    ]
-  },
-  {
-    name: 'Bình luận & Đính kèm',
-    permissions: [
-      { id: 'COMMENT_CREATE', label: 'Tạo bình luận' },
-      { id: 'COMMENT_UPDATE', label: 'Sửa bình luận' },
-      { id: 'COMMENT_DELETE', label: 'Xóa bình luận' },
-      { id: 'ATTACHMENT_UPLOAD', label: 'Tải file' },
-      { id: 'ATTACHMENT_DELETE', label: 'Xóa file' },
-    ]
-  },
-  {
-    name: 'Phân quyền',
-    permissions: [
-      { id: 'ROLE_MANAGE', label: 'Quản lý Role' },
-      { id: 'PERMISSION_MANAGE', label: 'Quản lý Phân quyền' },
-    ]
-  }
-];
-
-const ALL_PERMISSIONS = PERMISSION_GROUPS.flatMap(g => g.permissions.map(p => p.id));
-
-const STATUS_CATEGORIES = [
-  { id: 'TO_DO', label: 'To Do', color: '#64748B' },
-  { id: 'IN_PROGRESS', label: 'In Progress', color: '#3B82F6' },
-  { id: 'DONE', label: 'Done', color: '#22C55E' }
-];
+import { PERMISSION_GROUPS, ALL_PERMISSIONS } from '../../constants/permissions';
+import { STATUS_COLORS } from '../../constants/theme';
 
 
 
@@ -143,9 +76,9 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
         name: '',
         description: '',
         defaultStatuses: [
-          { statusId: 'todo', label: 'To Do', category: 'TO_DO', color: '#64748b' },
-          { statusId: 'in_progress', label: 'In Progress', category: 'IN_PROGRESS', color: '#3b82f6' },
-          { statusId: 'done', label: 'Done', category: 'DONE', color: '#22c55e' }
+          { statusId: 'todo', label: 'To Do', category: 'TO_DO', color: STATUS_COLORS.TODO },
+          { statusId: 'in_progress', label: 'In Progress', category: 'IN_PROGRESS', color: STATUS_COLORS.IN_PROGRESS },
+          { statusId: 'done', label: 'Done', category: 'DONE', color: STATUS_COLORS.DONE }
         ],
         defaultBoardColumns: [
           { id: 'col_1', name: 'To Do', mappedStatusIds: ['todo'], position: 0 },
@@ -328,40 +261,40 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
   };
 
   const NavItem = ({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: any, label: string }) => (
-    <button
-      type="button"
+    <Button
+      variant={active ? 'default' : 'ghost'}
       onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full text-left ${
+      className={`flex items-center justify-start gap-3 px-4 py-3 h-auto rounded-xl font-bold transition-all w-full text-left ${
         active 
-          ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
-          : 'text-text-secondary hover:text-text-primary hover:bg-panel-hover'
+          ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 hover:bg-blue-700' 
+          : 'text-muted-foreground hover:text-foreground'
       }`}
     >
       {icon}
       <span>{label}</span>
-    </button>
+    </Button>
   );
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-background rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col border border-border-subtle overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col border border-border overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-border-subtle flex justify-between items-center bg-panel">
+        <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-muted/30">
           <div>
-            <h3 className="text-xl font-bold text-text-primary">
+            <h3 className="text-xl font-bold text-foreground">
               {category ? 'Chỉnh sửa Category Template' : 'Tạo Category Template mới'}
             </h3>
-            <p className="text-sm text-text-secondary mt-1">Cấu hình đầy đủ luồng công việc, bảng và quyền hạn.</p>
+            <p className="text-sm text-muted-foreground mt-1">Cấu hình đầy đủ luồng công việc, bảng và quyền hạn.</p>
           </div>
-          <button onClick={onClose} className="text-text-secondary hover:text-text-primary transition-colors bg-panel-hover p-2 rounded-lg">
+          <Button variant="ghost" size="icon" onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <Icons.plus size={24} className="rotate-45" />
-          </button>
+          </Button>
         </div>
 
         {/* Content Body */}
         <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
           {/* Sidebar */}
-          <div className="w-full md:w-64 border-r border-border-subtle bg-panel p-4 flex flex-col gap-2 overflow-y-auto">
+          <div className="w-full md:w-64 border-r border-border bg-muted/30 p-4 flex flex-col gap-2 overflow-y-auto">
             <NavItem active={activeTab === 'basic'} onClick={() => setActiveTab('basic')} icon={<Icons.layers size={18} />} label="Thông tin chung" />
             <NavItem active={activeTab === 'statuses'} onClick={() => setActiveTab('statuses')} icon={<Icons.layoutList size={18} />} label="Workflow Statuses" />
             <NavItem active={activeTab === 'columns'} onClick={() => setActiveTab('columns')} icon={<Icons.columns size={18} />} label="Board Columns" />
@@ -369,27 +302,27 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
           </div>
 
           {/* Main Area */}
-          <div className="flex-1 overflow-y-auto p-8 bg-background">
+          <div className="flex-1 overflow-y-auto p-8 bg-card">
             {activeTab === 'basic' && (
               <div className="max-w-2xl space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h4 className="text-lg font-bold text-text-primary mb-6 border-b border-border-subtle pb-3">Thông tin cơ bản</h4>
+                <h4 className="text-lg font-bold text-foreground mb-6 border-b border-border pb-3">Thông tin cơ bản</h4>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">Tên template *</label>
-                  <input
+                  <Label className="block text-sm font-medium text-muted-foreground mb-1.5">Tên template *</Label>
+                  <Input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-panel border border-border-subtle rounded-xl focus:outline-none focus:border-blue-500 text-text-primary placeholder-text-secondary font-medium"
+                    className="bg-muted/30 font-medium"
                     placeholder="VD: Software Development"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">Mô tả ngắn</label>
-                  <textarea
+                  <Label className="block text-sm font-medium text-muted-foreground mb-1.5">Mô tả ngắn</Label>
+                  <Textarea
                     rows={4}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-3 bg-panel border border-border-subtle rounded-xl focus:outline-none focus:border-blue-500 text-text-primary placeholder-text-secondary resize-none font-medium"
+                    className="bg-muted/30 resize-none font-medium"
                     placeholder="Mô tả về template này"
                   />
                 </div>
@@ -398,14 +331,14 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
 
             {activeTab === 'statuses' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="flex justify-between items-center border-b border-border-subtle pb-3 mb-6">
+                <div className="flex justify-between items-center border-b border-border pb-3 mb-6">
                   <div>
-                    <h4 className="text-lg font-bold text-text-primary">Workflow Statuses</h4>
-                    <p className="text-sm text-text-secondary mt-1">Sử dụng chuột kéo thả (biểu tượng 6 chấm) để thay đổi thứ tự trạng thái.</p>
+                    <h4 className="text-lg font-bold text-foreground">Workflow Statuses</h4>
+                    <p className="text-sm text-muted-foreground mt-1">Sử dụng chuột kéo thả (biểu tượng 6 chấm) để thay đổi thứ tự trạng thái.</p>
                   </div>
-                  <button onClick={addStatus} className="flex items-center gap-2 px-3 py-1.5 bg-panel-hover border border-border-subtle text-blue-500 hover:text-blue-400 rounded-lg text-sm font-bold transition-colors">
+                  <Button variant="outline" size="sm" onClick={addStatus} className="flex items-center gap-2 text-blue-500 hover:text-blue-400">
                     <Icons.plus size={16} /> Thêm Status
-                  </button>
+                  </Button>
                 </div>
 
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleStatusDragEnd}>
@@ -420,7 +353,7 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
                           removeStatus={removeStatus}
                         />
                       ))}
-                      {formData.defaultStatuses.length === 0 && <p className="text-text-secondary text-sm italic">Chưa có status nào.</p>}
+                      {formData.defaultStatuses.length === 0 && <p className="text-muted-foreground text-sm italic">Chưa có status nào.</p>}
                     </div>
                   </SortableContext>
                 </DndContext>
@@ -429,14 +362,14 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
 
             {activeTab === 'columns' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="flex justify-between items-center border-b border-border-subtle pb-3 mb-6">
+                <div className="flex justify-between items-center border-b border-border pb-3 mb-6">
                   <div>
-                    <h4 className="text-lg font-bold text-text-primary">Board Columns</h4>
-                    <p className="text-sm text-text-secondary mt-1">Sử dụng chuột kéo thả cột (biểu tượng 6 chấm) để thay đổi thứ tự.</p>
+                    <h4 className="text-lg font-bold text-foreground">Board Columns</h4>
+                    <p className="text-sm text-muted-foreground mt-1">Sử dụng chuột kéo thả cột (biểu tượng 6 chấm) để thay đổi thứ tự.</p>
                   </div>
-                  <button onClick={addColumn} className="flex items-center gap-2 px-3 py-1.5 bg-panel-hover border border-border-subtle text-blue-500 hover:text-blue-400 rounded-lg text-sm font-bold transition-colors">
+                  <Button variant="outline" size="sm" onClick={addColumn} className="flex items-center gap-2 text-blue-500 hover:text-blue-400">
                     <Icons.plus size={16} /> Thêm Cột
-                  </button>
+                  </Button>
                 </div>
 
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -453,7 +386,7 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
                           defaultStatuses={formData.defaultStatuses}
                         />
                       ))}
-                      {formData.defaultBoardColumns.length === 0 && <p className="text-text-secondary text-sm italic">Chưa có cột nào.</p>}
+                      {formData.defaultBoardColumns.length === 0 && <p className="text-muted-foreground text-sm italic">Chưa có cột nào.</p>}
                     </div>
                   </SortableContext>
                 </DndContext>
@@ -462,33 +395,35 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
 
             {activeTab === 'roles' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="flex justify-between items-center border-b border-border-subtle pb-3 mb-6">
-                  <h4 className="text-lg font-bold text-text-primary">Roles & Permissions</h4>
+                <div className="flex justify-between items-center border-b border-border pb-3 mb-6">
+                  <h4 className="text-lg font-bold text-foreground">Roles & Permissions</h4>
                 </div>
 
                 <div className="flex flex-col gap-6">
-                  <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-border-subtle hide-scrollbar">
+                  <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-border hide-scrollbar">
                     {formData.defaultRoles.map((role, idx) => (
-                      <button
+                      <Button
+                        variant="outline"
                         key={idx}
                         onClick={() => setActiveRoleIndex(idx)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap h-auto ${
                           activeRoleIndex === idx 
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-panel text-text-secondary border border-border-subtle hover:bg-panel-hover hover:text-text-primary'
+                            ? 'bg-blue-600 text-white hover:bg-blue-600 hover:text-white border-blue-600' 
+                            : 'bg-muted/30 text-muted-foreground border border-border hover:bg-muted hover:bg-muted/80 hover:text-foreground'
                         }`}
                       >
                         <Icons.lockKeyhole size={16} />
                         {role.name || 'Unnamed Role'}
-                      </button>
+                      </Button>
                     ))}
-                    <button
+                    <Button
+                      variant="outline"
                       onClick={addRole}
-                      className="flex items-center justify-center gap-2 px-4 py-2 border border-dashed border-border-subtle rounded-xl text-text-secondary font-bold hover:border-blue-400 hover:text-blue-400 transition-all whitespace-nowrap bg-transparent"
+                      className="flex items-center justify-center gap-2 border-dashed text-muted-foreground font-bold hover:text-blue-400 hover:border-blue-400"
                     >
                       <Icons.plus size={16} />
                       Thêm Role
-                    </button>
+                    </Button>
                   </div>
 
                   {formData.defaultRoles.length > 0 && activeRoleIndex >= 0 && activeRoleIndex < formData.defaultRoles.length ? (() => {
@@ -496,20 +431,20 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
                     const isOwner = activeRole.name.toLowerCase() === 'owner' || activeRole.id === 'owner';
 
                     return (
-                      <div className="bg-panel border border-border-subtle rounded-2xl p-6 relative overflow-hidden">
+                      <div className="bg-muted/30 border border-border rounded-2xl p-6 relative overflow-hidden">
                         {isOwner && (
                           <div className="absolute top-4 right-4 bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold border border-emerald-500/20">
                             System Default
                           </div>
                         )}
                         
-                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-border-subtle">
+                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
                           <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isOwner ? 'bg-emerald-500/20 text-emerald-400' : 'bg-panel-hover text-blue-500'}`}>
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isOwner ? 'bg-emerald-500/20 text-emerald-400' : 'bg-muted hover:bg-muted/80 text-blue-500'}`}>
                               <Icons.shield size={20} />
                             </div>
-                            <input
-                              className={`text-lg font-bold bg-transparent text-text-primary outline-none border-b border-transparent px-1 ${isOwner ? 'cursor-not-allowed opacity-80' : 'focus:border-blue-500'}`}
+                            <Input
+                              className={`text-lg font-bold bg-transparent text-foreground outline-none border-b border-transparent px-1 h-auto py-1 shadow-none rounded-none focus-visible:ring-0 ${isOwner ? 'cursor-not-allowed opacity-80' : 'focus:border-blue-500'}`}
                               value={activeRole.name}
                               disabled={isOwner}
                               placeholder="Role Name"
@@ -522,18 +457,19 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
                             />
                           </div>
                           {!isOwner && (
-                            <button 
+                            <Button 
+                              variant="outline"
                               onClick={() => removeRole(activeRoleIndex)}
-                              className="flex items-center gap-2 text-rose-500 hover:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors border border-rose-500/20"
+                              className="flex items-center gap-2 text-rose-500 hover:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/20"
                             >
                               <Icons.trash2 size={16} />
                               Xóa Role
-                            </button>
+                            </Button>
                           )}
                         </div>
 
                         {isOwner && (
-                          <div className="mb-6 p-4 bg-background border border-border-subtle rounded-xl text-text-secondary text-sm">
+                          <div className="mb-6 p-4 bg-card border border-border rounded-xl text-muted-foreground text-sm">
                             <Icons.info className="inline-block mr-2 text-emerald-500" size={16} />
                             Role <strong>Owner</strong> là role mặc định không thể xóa và có toàn quyền kiểm soát trong dự án. Các quyền dưới đây chỉ mang tính chất hiển thị.
                           </div>
@@ -547,34 +483,35 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
                             const someIncluded = groupPermIds.some(p => currentPerms.includes(p));
 
                             return (
-                              <div key={group.name} className="bg-background border border-border-subtle rounded-xl p-5 shadow-sm">
-                                <div className="flex items-center justify-between border-b border-border-subtle pb-3 mb-4">
-                                  <h4 className="font-bold text-sm text-text-primary">{group.name}</h4>
-                                  <button
+                              <div key={group.name} className="bg-card border border-border rounded-xl p-5 shadow-sm">
+                                <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
+                                  <h4 className="font-bold text-sm text-foreground">{group.name}</h4>
+                                  <Button
+                                    variant="outline"
                                     type="button"
                                     onClick={() => toggleGroupPermissions(activeRoleIndex, groupPermIds)}
-                                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
-                                      allIncluded ? 'bg-blue-600/20 text-blue-500 border border-blue-500/30' : 
-                                      someIncluded ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' : 'bg-panel text-text-secondary hover:bg-panel-hover border border-border-subtle'
+                                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors h-auto ${
+                                      allIncluded ? 'bg-blue-600/20 text-blue-500 border border-blue-500/30 hover:bg-blue-600/30 hover:text-blue-500' : 
+                                      someIncluded ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30 hover:bg-amber-500/30 hover:text-amber-500' : 'bg-muted/30 text-muted-foreground hover:bg-muted hover:bg-muted/80 border border-border'
                                     }`}
                                   >
                                     {allIncluded ? 'Bỏ chọn hết' : 'Chọn tất cả'}
-                                  </button>
+                                  </Button>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                                   {group.permissions.map((perm) => {
                                     const isChecked = currentPerms.includes(perm.id);
                                     return (
-                                      <label key={perm.id} onClick={() => togglePermission(activeRoleIndex, perm.id)} className={`flex items-center gap-3 group ${isOwner ? 'cursor-default' : 'cursor-pointer'}`}>
+                                      <Label key={perm.id} onClick={() => togglePermission(activeRoleIndex, perm.id)} className={`flex items-center gap-3 group ${isOwner ? 'cursor-default' : 'cursor-pointer'}`}>
                                         <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${
-                                          isChecked ? 'bg-blue-600 border-blue-500' : 'bg-panel border-border-subtle group-hover:border-blue-500/50'
+                                          isChecked ? 'bg-blue-600 border-blue-500' : 'bg-muted/30 border-border group-hover:border-blue-500/50'
                                         }`}>
                                           {isChecked && <Icons.check size={14} className="text-white" />}
                                         </div>
-                                        <span className={`text-sm select-none transition-colors ${isChecked ? 'text-text-primary font-bold' : 'text-text-secondary group-hover:text-text-primary'}`}>
+                                        <span className={`text-sm select-none transition-colors ${isChecked ? 'text-foreground font-bold' : 'text-muted-foreground group-hover:text-foreground'}`}>
                                           {perm.label}
                                         </span>
-                                      </label>
+                                      </Label>
                                     );
                                   })}
                                 </div>
@@ -585,12 +522,12 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
                       </div>
                     );
                   })() : (
-                    <div className="text-center py-12 bg-background border border-border-subtle border-dashed rounded-3xl">
-                      <div className="w-14 h-14 bg-panel text-text-secondary rounded-full flex items-center justify-center mx-auto mb-4 border border-border-subtle">
+                    <div className="text-center py-12 bg-card border border-border border-dashed rounded-3xl">
+                      <div className="w-14 h-14 bg-muted/30 text-muted-foreground rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
                         <Icons.lockKeyhole size={24} />
                       </div>
-                      <h3 className="text-text-primary font-bold text-lg">Chưa có Role nào</h3>
-                      <p className="text-text-secondary text-sm mt-2">Hãy thêm role mới để cấu hình phân quyền.</p>
+                      <h3 className="text-foreground font-bold text-lg">Chưa có Role nào</h3>
+                      <p className="text-muted-foreground text-sm mt-2">Hãy thêm role mới để cấu hình phân quyền.</p>
                     </div>
                   )}
                 </div>
@@ -600,22 +537,20 @@ export default function CategoryEditorModal({ category, isOpen, onClose, onSave,
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-border-subtle bg-panel flex justify-end gap-3">
-          <button
-            type="button"
+        <div className="px-6 py-4 border-t border-border bg-muted/30 flex justify-end gap-3">
+          <Button
+            variant="ghost"
             onClick={onClose}
-            className="px-6 py-2.5 text-sm font-bold text-text-secondary bg-panel-hover rounded-xl hover:text-text-primary transition-colors"
           >
             Hủy bỏ
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="px-8 py-2.5 text-sm font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-lg shadow-blue-500/20"
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20"
           >
             {isSaving ? 'Đang lưu...' : 'Lưu Template'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

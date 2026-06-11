@@ -6,12 +6,9 @@ import type { BlogStatus } from '../../services/blogService';
 import MDEditor from '@uiw/react-md-editor';
 import ConfirmModal from '../../shared/components/ConfirmModal';
 import { useState } from 'react';
+import { Button } from '../../components/ui/Button';
+import type { BlogDetailProps } from '../../types';
 
-interface BlogDetailProps {
-  blogId: string;
-  onBack: () => void;
-  onEdit: () => void;
-}
 
 export default function BlogDetail({ blogId, onBack, onEdit }: BlogDetailProps) {
   const { t } = useTranslation();
@@ -32,11 +29,11 @@ export default function BlogDetail({ blogId, onBack, onEdit }: BlogDetailProps) 
   });
 
   if (isLoading) {
-    return <div className="p-8 text-center text-text-secondary">Loading details...</div>;
+    return <div className="p-8 text-center text-muted-foreground">Loading details...</div>;
   }
 
   if (!blog) {
-    return <div className="p-8 text-center text-text-secondary">Blog not found.</div>;
+    return <div className="p-8 text-center text-muted-foreground">Blog not found.</div>;
   }
 
   const getStatusColor = (status: BlogStatus) => {
@@ -84,26 +81,27 @@ export default function BlogDetail({ blogId, onBack, onEdit }: BlogDetailProps) 
     <div className="space-y-8 font-sans pb-12">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-2 text-sm text-text-secondary">
-          <span className="hover:text-text-primary cursor-pointer transition-colors" onClick={onBack}>Blog Management</span>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="hover:text-foreground cursor-pointer transition-colors" onClick={onBack}>Blog Management</span>
           <Icons.chevronRight size={14} />
-          <span className="text-text-primary font-medium">Post Detail View</span>
+          <span className="text-foreground font-medium">Post Detail View</span>
         </div>
         <div className="flex items-center gap-3">
-          <button 
+          <Button 
+            variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 px-4 py-2 bg-panel-hover border border-border-subtle text-text-secondary text-sm font-medium rounded-lg hover:text-text-primary transition-colors"
+            className="flex items-center gap-2 text-muted-foreground"
           >
             <Icons.arrowRight className="rotate-180" size={16} />
             <span>BACK TO LIST</span>
-          </button>
-          <button 
+          </Button>
+          <Button 
             onClick={onEdit}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20"
           >
             <Icons.edit2 size={16} />
             <span>EDIT POST</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -112,14 +110,14 @@ export default function BlogDetail({ blogId, onBack, onEdit }: BlogDetailProps) 
         {/* Tags */}
         <div className="flex flex-wrap gap-2">
           {blog.tags?.map((tag, idx) => (
-            <span key={idx} className="px-3 py-1 rounded-full text-xs font-bold bg-panel-hover text-blue-500 border border-border-subtle">
+            <span key={idx} className="px-3 py-1 rounded-full text-xs font-bold bg-muted text-blue-500 border border-border">
               {tag}
             </span>
           ))}
         </div>
 
         {/* Title */}
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-text-primary leading-tight tracking-tight">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight tracking-tight">
           {blog.title}
         </h1>
 
@@ -131,23 +129,23 @@ export default function BlogDetail({ blogId, onBack, onEdit }: BlogDetailProps) 
               {getInitials(blog.authorName)}
             </div>
             <div>
-              <div className="text-text-primary font-bold text-base">{blog.authorName || 'Admin'}</div>
-              <div className="text-text-secondary text-xs mt-0.5 flex items-center gap-1.5">
+              <div className="text-foreground font-bold text-base">{blog.authorName || 'Admin'}</div>
+              <div className="text-muted-foreground text-xs mt-0.5 flex items-center gap-1.5">
                 Content Creator • 
                 {blog.publishAt ? (
                   <span className={blog.status === 'PENDING' ? 'text-amber-500' : ''}>
                     {blog.status === 'PENDING' ? 'Scheduled for ' : 'Published '}{formatDate(blog.publishAt, true)}
                   </span>
                 ) : (
-                  <span className="italic text-text-secondary">Drafted {formatDate(blog.createdAt, true)}</span>
+                  <span className="italic text-muted-foreground">Drafted {formatDate(blog.createdAt, true)}</span>
                 )}
               </div>
             </div>
           </div>
 
           {/* Status */}
-          <div className="flex items-center gap-2 bg-panel px-4 py-2 rounded-xl border border-border-subtle">
-            <div className="text-xs text-text-secondary font-bold uppercase tracking-wider mr-2">STATUS</div>
+          <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-xl border border-border">
+            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider mr-2">STATUS</div>
             <div className={`w-2 h-2 rounded-full ${getStatusColor(blog.status).replace('text-', 'bg-')} bg-current`} />
             <span className={`text-sm font-bold ${getStatusColor(blog.status)} capitalize`}>
               {blog.status.toLowerCase()}
@@ -158,7 +156,7 @@ export default function BlogDetail({ blogId, onBack, onEdit }: BlogDetailProps) 
 
       {/* Thumbnail */}
       {blog.thumbnailUrl && (
-        <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden border border-border-subtle shadow-2xl relative group">
+        <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden border border-border shadow-2xl relative group">
           <img 
             src={blog.thumbnailUrl} 
             alt={blog.title} 
@@ -188,20 +186,21 @@ export default function BlogDetail({ blogId, onBack, onEdit }: BlogDetailProps) 
       </div>
 
       {/* Footer Actions */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 mt-12 border-t border-border-subtle">
-        <div className="flex items-center gap-4 text-text-secondary text-sm">
-          <Icons.share2 size={18} className="cursor-pointer hover:text-text-primary transition-colors" />
-          <Icons.layoutGrid size={18} className="cursor-pointer hover:text-text-primary transition-colors" />
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 mt-12 border-t border-border">
+        <div className="flex items-center gap-4 text-muted-foreground text-sm">
+          <Icons.share2 size={18} className="cursor-pointer hover:text-foreground transition-colors" />
+          <Icons.layoutGrid size={18} className="cursor-pointer hover:text-foreground transition-colors" />
           <span className="ml-4 italic text-xs">
             Last modified {calculateTimeAgo(blog.updatedAt || blog.createdAt)} by {blog.authorName}
           </span>
         </div>
-        <button 
+        <Button 
+          variant="outline"
           onClick={() => setIsDeleting(true)}
-          className="px-6 py-2 bg-transparent border border-rose-500/50 text-rose-500 font-bold text-sm rounded-lg hover:bg-rose-500/10 transition-colors w-full sm:w-auto"
+          className="border-rose-500/50 text-rose-500 hover:bg-rose-500/10 hover:text-rose-500 w-full sm:w-auto"
         >
           DELETE POST
-        </button>
+        </Button>
       </div>
 
       <ConfirmModal

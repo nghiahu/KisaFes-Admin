@@ -1,3 +1,4 @@
+import { Label } from '@/components/ui/Label';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,11 +7,10 @@ import { blogService } from '../../services/blogService';
 import { uploadService } from '../../services/uploadService';
 import type { BlogStatus } from '../../services/blogService';
 import MDEditor from '@uiw/react-md-editor';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import type { BlogEditorModalProps } from '../../types';
 
-interface BlogEditorModalProps {
-  blogId: string | null;
-  onClose: () => void;
-}
 
 export default function BlogEditorModal({ blogId, onClose }: BlogEditorModalProps) {
   const { t } = useTranslation();
@@ -75,7 +75,7 @@ export default function BlogEditorModal({ blogId, onClose }: BlogEditorModalProp
     } else if (actionType === 'SAVE_DRAFT') {
       finalStatus = 'DRAFT';
     } else if (actionType === 'SCHEDULE') {
-      if (formData.status === 'PUBLISHED' && !formData.publishDate) {
+      if (formData.status === 'PUBLISHED' && !formData.publishAt) {
         alert(t('blogs.publishDateRequired'));
         return;
       }
@@ -144,27 +144,27 @@ export default function BlogEditorModal({ blogId, onClose }: BlogEditorModalProp
     <div className="w-full">
       <div className="w-full flex flex-col lg:flex-row gap-6">
         {/* Left Column - Content */}
-        <div className="flex-1 bg-panel border border-border-subtle rounded-xl p-6 flex flex-col gap-6 shadow-2xl">
+        <div className="flex-1 bg-card border border-border rounded-xl p-6 flex flex-col gap-6 shadow-2xl">
           {/* Title */}
           <div>
-            <label className="block text-[11px] font-bold text-text-secondary uppercase tracking-wider mb-2">TITLE</label>
-            <input 
+            <Label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">TITLE</Label>
+            <Input 
               type="text" 
               value={formData.title} 
               onChange={e => setFormData({...formData, title: e.target.value})} 
-              className="w-full px-4 py-3 bg-background border border-border-subtle text-text-primary text-lg font-medium rounded-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-text-secondary" 
+              className="bg-background font-medium" 
               placeholder="Enter a compelling title..." 
             />
           </div>
           
           {/* Excerpt */}
           <div>
-            <label className="block text-[11px] font-bold text-text-secondary uppercase tracking-wider mb-2">EXCERPT (SHORT SUMMARY)</label>
+            <Label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">EXCERPT (SHORT SUMMARY)</Label>
             <textarea 
               rows={3}
               value={formData.excerpt} 
               onChange={e => setFormData({...formData, excerpt: e.target.value})} 
-              className="w-full px-4 py-3 bg-background border border-border-subtle text-text-primary text-sm rounded-lg focus:outline-none focus:border-blue-500 resize-none transition-colors placeholder-text-secondary" 
+              className="w-full px-4 py-3 bg-background border border-border text-foreground text-sm rounded-lg focus:outline-none focus:border-blue-500 resize-none transition-colors placeholder:text-muted-foreground" 
               placeholder="Write a brief summary of the post..." 
             />
           </div>
@@ -172,9 +172,9 @@ export default function BlogEditorModal({ blogId, onClose }: BlogEditorModalProp
           {/* Content */}
           <div className="flex-1 flex flex-col min-h-[400px] max-h-[800px]" data-color-mode="light">
             <div className="flex justify-between items-end mb-2">
-              <label className="block text-[11px] font-bold text-text-secondary uppercase tracking-wider">CONTENT</label>
+              <Label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider">CONTENT</Label>
             </div>
-            <div className="flex-1 overflow-hidden border border-border-subtle rounded-lg bg-background">
+            <div className="flex-1 overflow-hidden border border-border rounded-lg bg-background">
               <MDEditor
                 value={formData.content}
                 onChange={(val) => setFormData({...formData, content: val || ''})}
@@ -189,71 +189,74 @@ export default function BlogEditorModal({ blogId, onClose }: BlogEditorModalProp
         <div className="w-full lg:w-[380px] flex flex-col gap-6">
           
           {/* Publishing */}
-          <div className="bg-panel border border-border-subtle rounded-xl p-6 shadow-xl">
-            <h3 className="text-text-primary font-bold text-lg mb-4">Publishing</h3>
+          <div className="bg-card border border-border rounded-xl p-6 shadow-xl">
+            <h3 className="text-foreground font-bold text-lg mb-4">Publishing</h3>
             <div className="flex flex-col gap-3">
-              <button 
+              <Button 
                 onClick={() => handleSubmit('PUBLISH_NOW')}
                 disabled={createMutation.isPending || updateMutation.isPending || !formData.title || !formData.content}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 <Icons.send size={16} />
                 Publish Now
-              </button>
+              </Button>
               
-              <div className="bg-background border border-border-subtle rounded-lg p-3">
-                <button 
+              <div className="bg-background border border-border rounded-lg p-3">
+                <Button 
+                  variant="ghost"
                   onClick={() => setIsScheduling(!isScheduling)}
-                  className="w-full flex items-center justify-between text-text-secondary text-sm font-bold hover:text-text-primary transition-colors"
+                  className="w-full flex items-center justify-between text-muted-foreground hover:text-foreground"
                 >
                   <div className="flex items-center gap-2">
                     <Icons.calendar size={16} />
                     <span>Schedule Publish</span>
                   </div>
                   <Icons.chevronDown size={16} className={`transition-transform ${isScheduling ? 'rotate-180' : ''}`} />
-                </button>
+                </Button>
                 
                 {isScheduling && (
-                  <div className="mt-3 pt-3 border-t border-border-subtle animate-in slide-in-from-top-2 duration-200">
-                    <input 
+                  <div className="mt-3 pt-3 border-t border-border animate-in slide-in-from-top-2 duration-200">
+                    <Input 
                       type="datetime-local" 
                       value={formData.publishAt}
                       onChange={e => setFormData({...formData, publishAt: e.target.value})}
-                      className="w-full px-3 py-2 bg-panel-hover border border-border-subtle text-text-primary text-xs rounded focus:outline-none focus:border-blue-500 mb-2"
+                      className="bg-muted text-xs mb-2"
                     />
-                    <button 
+                    <Button 
                       onClick={() => handleSubmit('SCHEDULE')}
                       disabled={createMutation.isPending || updateMutation.isPending || !formData.title || !formData.content || !formData.publishAt}
-                      className="w-full py-2 bg-blue-600 text-white text-xs font-bold rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       Confirm Schedule
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
 
-              <button 
+              <Button 
+                variant="outline"
                 onClick={() => handleSubmit('SAVE_DRAFT')}
                 disabled={createMutation.isPending || updateMutation.isPending || !formData.title}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-background border border-border-subtle text-text-secondary text-sm font-bold rounded-lg hover:bg-panel-hover transition-colors disabled:opacity-50 mt-1"
+                className="w-full flex items-center justify-center gap-2 mt-1"
               >
                 <Icons.save size={16} />
                 Save Draft
-              </button>
-              <button 
+              </Button>
+              <Button 
+                variant="ghost"
                 onClick={onClose}
-                className="w-full py-3 text-rose-400 text-sm font-bold hover:text-rose-300 mt-2 transition-colors"
+                className="w-full text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 mt-2"
               >
                 Discard Post
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* Thumbnail */}
-          <div className="bg-panel border border-border-subtle rounded-xl p-6 shadow-xl">
-            <h3 className="text-text-primary font-bold text-lg mb-4">Thumbnail</h3>
-            <label className="w-full h-32 border-2 border-dashed border-border-subtle bg-background rounded-lg flex flex-col items-center justify-center text-text-secondary mb-4 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition-colors overflow-hidden">
-              <input 
+          <div className="bg-card border border-border rounded-xl p-6 shadow-xl">
+            <h3 className="text-foreground font-bold text-lg mb-4">Thumbnail</h3>
+            <Label className="w-full h-32 border-2 border-dashed border-border bg-background rounded-lg flex flex-col items-center justify-center text-muted-foreground mb-4 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition-colors overflow-hidden">
+              <Input 
                 type="file" 
                 accept="image/*" 
                 className="hidden" 
@@ -273,43 +276,45 @@ export default function BlogEditorModal({ blogId, onClose }: BlogEditorModalProp
                   <span className="text-xs font-semibold">Click to upload or drag image</span>
                 </>
               )}
-            </label>
+            </Label>
             <div>
-              <label className="block text-[10px] font-bold text-text-secondary uppercase tracking-wider mb-2">IMAGE URL</label>
-              <input 
+              <Label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">IMAGE URL</Label>
+              <Input 
                 type="text" 
                 value={formData.thumbnailUrl} 
                 onChange={e => setFormData({...formData, thumbnailUrl: e.target.value})} 
-                className="w-full px-3 py-2.5 bg-background border border-border-subtle text-text-primary text-xs rounded-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-text-secondary" 
+                className="bg-background text-xs" 
                 placeholder="https://images.unsplash.com/..." 
               />
             </div>
           </div>
 
           {/* Tags */}
-          <div className="bg-panel border border-border-subtle rounded-xl p-6 shadow-xl">
-            <h3 className="text-text-primary font-bold text-lg mb-4">Tags</h3>
+          <div className="bg-card border border-border rounded-xl p-6 shadow-xl">
+            <h3 className="text-foreground font-bold text-lg mb-4">Tags</h3>
             <div>
-              <label className="block text-[10px] font-bold text-text-secondary uppercase tracking-wider mb-2">TAGS</label>
+              <Label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">TAGS</Label>
               <div className="flex flex-wrap gap-2 mb-3">
                 {formData.tags.map((tag, idx) => (
-                  <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-panel-hover text-text-primary text-xs font-semibold rounded-full border border-border-subtle">
+                  <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-muted text-foreground text-xs font-semibold rounded-full border border-border">
                     #{tag}
-                    <button 
+                    <Button 
+                      variant="ghost"
+                      size="icon"
                       onClick={() => removeTag(tag)}
-                      className="text-text-secondary hover:text-rose-400 transition-colors"
+                      className="text-muted-foreground hover:text-rose-400 transition-colors h-auto w-auto p-0 border-0 bg-transparent hover:bg-transparent"
                     >
                       <Icons.x size={12} />
-                    </button>
+                    </Button>
                   </span>
                 ))}
               </div>
-              <input 
+              <Input 
                 type="text" 
                 value={tagInput}
                 onChange={e => setTagInput(e.target.value)}
                 onKeyDown={handleAddTag}
-                className="w-full px-3 py-2.5 bg-background border border-border-subtle text-text-primary text-xs rounded-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-text-secondary" 
+                className="bg-background text-xs" 
                 placeholder="Add tags... (Press Enter)" 
               />
             </div>

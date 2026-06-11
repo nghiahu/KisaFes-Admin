@@ -41,18 +41,18 @@ export interface CategoryRequest {
 
 export const categoryService = {
   getCategories: () => {
-    return axiosClient.get<CategoryTemplate[]>('/api/v1/categories');
+    return axiosClient.get<any, CategoryTemplate[]>('/api/v1/categories');
   },
   getCategoryById: (id: string) => {
-    return axiosClient.get<CategoryTemplate>(`/api/v1/categories/${id}`);
+    return axiosClient.get<any, CategoryTemplate>(`/api/v1/categories/${id}`);
   },
   createCategory: (data: CategoryRequest) => {
-    return axiosClient.post<CategoryTemplate>('/api/v1/categories', data);
+    return axiosClient.post<any, CategoryTemplate>('/api/v1/categories', data);
   },
   updateCategory: (id: string, data: Partial<CategoryRequest>) => {
-    return axiosClient.put<CategoryTemplate>(`/api/v1/categories/${id}`, data);
+    return axiosClient.put<any, CategoryTemplate>(`/api/v1/categories/${id}`, data);
   },
   deleteCategory: (id: string) => {
-    return axiosClient.delete<void>(`/api/v1/categories/${id}`);
+    return axiosClient.delete<any, void>(`/api/v1/categories/${id}`);
   }
 };

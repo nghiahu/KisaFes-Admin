@@ -10,9 +10,9 @@ export interface SystemSettings {
 
 export const settingsService = {
   getSettings: () => {
-    return axiosClient.get<SystemSettings>('/api/v1/admin/settings');
+    return axiosClient.get<any, SystemSettings>('/api/v1/admin/settings');
   },
   updateSettings: (data: Partial<SystemSettings>) => {
-    return axiosClient.put<SystemSettings>('/api/v1/admin/settings', data);
+    return axiosClient.put<any, SystemSettings>('/api/v1/admin/settings', data);
   }
 };

@@ -1,21 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-
-// Matches UserInfoResponse from backend
-export interface AuthUser {
-  id: string;
-  email: string;
-  username: string;
-  fullname: string;
-  avatarUrl?: string;
-  roles: string[]; // e.g. ["ROLE_USER", "ROLE_ADMIN"]
-}
-
-interface AuthState {
-  user: AuthUser | null;
-  token: string | null;
-  isAuthenticated: boolean;
-}
+import type { AuthUser, AuthState } from '../../types';
 
 const initialState: AuthState = {
   user: JSON.parse(localStorage.getItem('user') || 'null'),

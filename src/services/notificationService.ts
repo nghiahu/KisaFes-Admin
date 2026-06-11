@@ -23,12 +23,12 @@ export interface BroadcastRequest {
 
 export const notificationService = {
   getNotifications: () => {
-    return axiosClient.get<SystemBroadcast[]>('/api/v1/admin/broadcasts');
+    return axiosClient.get<any, SystemBroadcast[]>('/api/v1/admin/broadcasts');
   },
   broadcastNotification: (data: BroadcastRequest) => {
-    return axiosClient.post<SystemBroadcast>('/api/v1/admin/broadcasts', data);
+    return axiosClient.post<any, SystemBroadcast>('/api/v1/admin/broadcasts', data);
   },
   deleteNotification: (id: string) => {
-    return axiosClient.delete<void>(`/api/v1/admin/broadcasts/${id}`);
+    return axiosClient.delete<any, void>(`/api/v1/admin/broadcasts/${id}`);
   },
 };

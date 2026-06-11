@@ -1,51 +1,5 @@
-@import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
-
-@theme {
-  --color-slate-850: #162032;
-  --color-blue-600: #2563EB;
-  --color-blue-700: #1D4ED8;
-  --color-blue-50: #EFF6FF;
-  
-  /* Map CSS variables to Tailwind colors */
-  --color-background: var(--bg-base);
-  --color-panel: var(--bg-panel);
-  --color-panel-hover: var(--bg-panel-hover);
-  --color-border-subtle: var(--border-subtle);
-  
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-
-  --radius-lg: 0.5rem;
-  --radius-md: calc(0.5rem - 2px);
-  --radius-sm: calc(0.5rem - 4px);
-}
-
-@layer base {
-  :root {
-    --bg-base: #F8FAFC;
-    --bg-panel: #FFFFFF;
-    --bg-panel-hover: #F1F5F9;
-    --border-subtle: #E2E8F0;
-    --text-primary: #0F172A;
-    --text-secondary: #64748B;
-  }
-  
-  .dark {
-    --bg-base: #131623;
-    --bg-panel: #1A1D2D;
-    --bg-panel-hover: #1E2235;
-    --border-subtle: #2E334D;
-    --text-primary: #FFFFFF;
-    --text-secondary: #94A3B8;
-  }
-
-  * {
-    border-color: var(--border-subtle);
-  }
-  body {
-    background-color: var(--bg-base);
-    color: var(--text-primary);
-    font-family: 'Geist', sans-serif;
-  }
-}
+@import "./styles/globals.css";
+@import "./styles/theme.css";
+@import "./styles/reset.css";
+@import "./styles/typography.css";
+@import "./styles/animations.css";

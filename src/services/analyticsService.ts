@@ -22,6 +22,6 @@ export interface AdminAnalytics {
 
 export const analyticsService = {
   getDashboardData: () => {
-    return axiosClient.get<AdminAnalytics>('/api/v1/admin/analytics');
+    return axiosClient.get<any, AdminAnalytics>('/api/v1/admin/analytics');
   },
 };

@@ -31,20 +31,20 @@ export interface PageResponse<T> {
 
 export const userService = {
   getUsers: (page: number, size: number, search: string, roleType: string = 'ALL', status: string = 'ALL', sortBy: string = 'createdAt', sortDirection: string = 'DESC') => {
-    return axiosClient.get<PageResponse<AdminUser>>('/api/v1/admin/users', {
+    return axiosClient.get<any, PageResponse<AdminUser>>('/api/v1/admin/users', {
       params: { page, size, search, roleType, status, sortBy, sortDirection }
     });
   },
   getUserDetail: (id: string) => {
-    return axiosClient.get<AdminUserDetail>(`/api/v1/admin/users/${id}`);
+    return axiosClient.get<any, AdminUserDetail>(`/api/v1/admin/users/${id}`);
   },
   bulkAction: (action: 'ban' | 'activate' | 'delete', userIds: string[]) => {
-    return axiosClient.post<void>('/api/v1/admin/users/bulk-action', { action, userIds });
+    return axiosClient.post<any, void>('/api/v1/admin/users/bulk-action', { action, userIds });
   },
   changeRole: (id: string, role: string) => {
-    return axiosClient.patch<AdminUser>(`/api/v1/admin/users/${id}/role`, { role });
+    return axiosClient.patch<any, AdminUser>(`/api/v1/admin/users/${id}/role`, { role });
   },
   toggleStatus: (id: string) => {
-    return axiosClient.patch<AdminUser>(`/api/v1/admin/users/${id}/status`);
+    return axiosClient.patch<any, AdminUser>(`/api/v1/admin/users/${id}/status`);
   },
 };
